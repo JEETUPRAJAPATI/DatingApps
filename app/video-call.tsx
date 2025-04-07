@@ -3,6 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Platform }
 import { router, useLocalSearchParams } from 'expo-router';
 import { Camera, Mic, MicOff, PhoneOff, RefreshCcw, Video, VideoOff, Brain, Heart, Flame, Star, Smile, ThumbsUp, X } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from './_layout';
+import NeonText from '../components/NeonText';
+import GradientButton from '../components/GradientButton';
+import Card from '../components/Card';
+import NeonGradient from '../components/NeonGradient';
 import Animated, { 
   FadeIn, 
   FadeOut, 
@@ -19,11 +24,11 @@ import Animated, {
 const { width, height } = Dimensions.get('window');
 
 const REACTIONS = [
-  { icon: Heart, color: '#FF4B6A', name: 'heart' },
-  { icon: Star, color: '#FFD700', name: 'star' },
-  { icon: Flame, color: '#FF4500', name: 'fire' },
-  { icon: Smile, color: '#4CAF50', name: 'smile' },
-  { icon: ThumbsUp, color: '#2196F3', name: 'thumbsup' },
+  { icon: Heart, color: theme.neonPink, name: 'heart' },
+  { icon: Star, color: theme.neonBlue, name: 'star' },
+  { icon: Flame, color: theme.neonPurple, name: 'fire' },
+  { icon: Smile, color: theme.neonGreen, name: 'smile' },
+  { icon: ThumbsUp, color: theme.neonBlue, name: 'thumbsup' },
 ];
 
 const QUESTIONS = [
@@ -157,21 +162,23 @@ export default function VideoCallScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Image source={{ uri: image }} style={styles.remoteVideo} />
+      <NeonGradient style={styles.videoContainer}>
+        <Image source={{ uri: image }} style={styles.remoteVideo} />
+      </NeonGradient>
       
-      <View style={styles.localVideoContainer}>
+      <Card style={styles.localVideoContainer}>
         <Image
           source={{ uri: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=2574&auto=format&fit=crop' }}
           style={styles.localVideo}
         />
-      </View>
+      </Card>
 
       <View style={styles.callInfo}>
-        <Text style={styles.name}>{name}</Text>
+        <NeonText text={name} color={theme.neonPink} size={18} style={styles.name} />
         <Text style={styles.time}>{formatTime(callTime)}</Text>
         {isGameActive && (
           <Animated.View style={[styles.scoreContainer, scoreStyle]}>
-            <Text style={styles.scoreText}>Match Score: {score}</Text>
+            <NeonText text={`Match Score: ${score}`} color={theme.neonBlue} size={14} />
           </Animated.View>
         )}
       </View>
@@ -182,15 +189,20 @@ export default function VideoCallScreen() {
             style={styles.cancelGameButton}
             onPress={cancelGame}
           >
-            <X size={24} color="#fff" />
+            <X size={24} color={theme.textPrimary} />
           </TouchableOpacity>
 
-          <View style={styles.timerContainer}>
-            <Text style={styles.timerText}>{timer}s</Text>
-          </View>
+          <NeonGradient style={styles.timerContainer}>
+            <NeonText text={`${timer}s`} color={theme.neonBlue} size={18} />
+          </NeonGradient>
           
-          <View style={styles.questionContainer}>
-            <Text style={styles.questionText}>{QUESTIONS[currentQuestion].question}</Text>
+          <Card style={styles.questionContainer}>
+            <NeonText 
+              text={QUESTIONS[currentQuestion].question}
+              color={theme.neonPink}
+              size={18}
+              style={styles.questionText}
+            />
             <View style={styles.optionsContainer}>
               {QUESTIONS[currentQuestion].options.map((option, index) => (
                 <TouchableOpacity
@@ -201,34 +213,31 @@ export default function VideoCallScreen() {
                   ]}
                   onPress={() => handleAnswer(index)}
                 >
-                  <Animated.Text 
-                    style={[
-                      styles.optionText,
-                      selectedAnswer === index && styles.selectedOptionText
-                    ]}
-                  >
+                  <Text style={[
+                    styles.optionText,
+                    selectedAnswer === index && styles.selectedOptionText
+                  ]}>
                     {option}
-                  </Animated.Text>
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          </Card>
         </Animated.View>
       ) : (
-        <TouchableOpacity 
-          style={styles.startGameButton}
+        <GradientButton
+          text="Start Quiz Game"
           onPress={startGame}
-        >
-          <Brain size={24} color="#fff" />
-          <Text style={styles.startGameText}>Start Quiz Game</Text>
-        </TouchableOpacity>
+          style={styles.startGameButton}
+          gradientColors={[theme.neonPink, theme.neonPurple]}
+        />
       )}
 
       <TouchableOpacity 
         style={styles.reactionsPanelButton}
         onPress={() => setShowReactionPanel(!showReactionPanel)}
       >
-        <Heart size={24} color="#FF4B6A" />
+        <Heart size={24} color={theme.neonPink} />
       </TouchableOpacity>
 
       {showReactionPanel && (
@@ -278,32 +287,28 @@ export default function VideoCallScreen() {
           style={[styles.controlButton, isMuted && styles.controlButtonActive]}
           onPress={() => setIsMuted(!isMuted)}
         >
-          {isMuted ? <MicOff size={24} color="#fff" /> : <Mic size={24} color="#fff" />}
+          {isMuted ? <MicOff size={24} color={theme.textPrimary} /> : <Mic size={24} color={theme.textPrimary} />}
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={[styles.controlButton, styles.endCallButton]}
           onPress={handleEndCall}
         >
-          <PhoneOff size={24} color="#fff" />
+          <PhoneOff size={24} color={theme.textPrimary} />
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={[styles.controlButton, isCameraOff && styles.controlButtonActive]}
           onPress={() => setCameraOff(!isCameraOff)}
         >
-          {isCameraOff ? <VideoOff size={24} color="#fff" /> : <Video size={24} color="#fff" />}
+          {isCameraOff ? <VideoOff size={24} color={theme.textPrimary} /> : <Video size={24} color={theme.textPrimary} />}
         </TouchableOpacity>
       </View>
 
-      <Animated.View 
-        style={styles.connectionStatus}
-        entering={FadeIn}
-        exiting={FadeOut}
-      >
-        <RefreshCcw size={16} color="#fff" />
+      <Card style={styles.connectionStatus}>
+        <RefreshCcw size={16} color={theme.neonGreen} />
         <Text style={styles.connectionText}>Strong Connection</Text>
-      </Animated.View>
+      </Card>
     </View>
   );
 }
@@ -311,12 +316,18 @@ export default function VideoCallScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: theme.background,
+  },
+  videoContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    borderRadius: 20,
+    overflow: 'hidden',
   },
   remoteVideo: {
     width: '100%',
     height: '100%',
-    position: 'absolute',
   },
   localVideoContainer: {
     position: 'absolute',
@@ -326,8 +337,7 @@ const styles = StyleSheet.create({
     aspectRatio: 3/4,
     borderRadius: 12,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#fff',
+    padding: 0,
   },
   localVideo: {
     width: '100%',
@@ -340,15 +350,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   name: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
     marginBottom: 4,
   },
   time: {
-    color: '#fff',
+    color: theme.textSecondary,
     fontSize: 14,
-    opacity: 0.8,
   },
   controls: {
     position: 'absolute',
@@ -364,18 +370,32 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: theme.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   controlButtonActive: {
-    backgroundColor: '#FF4B6A',
+    backgroundColor: theme.neonPink,
+    borderColor: theme.neonPink,
+    shadowColor: theme.neonPink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
   endCallButton: {
-    backgroundColor: '#FF4B6A',
+    backgroundColor: theme.error,
     width: 70,
     height: 70,
     borderRadius: 35,
+    borderColor: theme.error,
+    shadowColor: theme.error,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
   connectionStatus: {
     position: 'absolute',
@@ -383,14 +403,11 @@ const styles = StyleSheet.create({
     left: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
     gap: 6,
+    backgroundColor: theme.surfaceLight,
   },
   connectionText: {
-    color: '#fff',
+    color: theme.textPrimary,
     fontSize: 14,
   },
   startGameButton: {
@@ -398,27 +415,12 @@ const styles = StyleSheet.create({
     top: '50%',
     left: '50%',
     transform: [{ translateX: -100 }, { translateY: -25 }],
-    backgroundColor: '#8B5CF6',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    gap: 8,
-  },
-  startGameText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
   gameContainer: {
     position: 'absolute',
     bottom: 120,
     left: 20,
     right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    borderRadius: 20,
-    padding: 20,
   },
   timerContainer: {
     position: 'absolute',
@@ -427,22 +429,14 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#FF4B6A',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  timerText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
   questionContainer: {
     alignItems: 'center',
+    backgroundColor: theme.surfaceLight,
   },
   questionText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -451,15 +445,23 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   optionButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: theme.surface,
     padding: 15,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   selectedOption: {
-    backgroundColor: '#8B5CF6',
+    backgroundColor: theme.neonPink,
+    borderColor: theme.neonPink,
+    shadowColor: theme.neonPink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
   optionText: {
-    color: '#fff',
+    color: theme.textPrimary,
     fontSize: 16,
     textAlign: 'center',
   },
@@ -467,16 +469,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   scoreContainer: {
-    backgroundColor: '#8B5CF6',
+    backgroundColor: theme.surfaceLight,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
     marginTop: 8,
-  },
-  scoreText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   reactionsPanelButton: {
     position: 'absolute',
@@ -486,28 +485,34 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: theme.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   reactionsPanel: {
     position: 'absolute',
     right: 74,
     top: '50%',
     transform: [{ translateY: -110 }],
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: theme.surfaceLight,
     borderRadius: 22,
     padding: 10,
     flexDirection: 'column',
     gap: 10,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   reactionButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: theme.surface,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   floatingReaction: {
     position: 'absolute',
@@ -521,9 +526,16 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#FF4B6A',
+    backgroundColor: theme.error,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
+    borderWidth: 1,
+    borderColor: theme.error,
+    shadowColor: theme.error,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
 });

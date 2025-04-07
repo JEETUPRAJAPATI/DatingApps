@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView,
 import { router } from 'expo-router';
 import { ArrowLeft, MoveVertical as MoreVertical, Mic, Send, Camera, Image as ImageIcon, Phone, Video, Paperclip } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from './_layout';
+import NeonText from '../components/NeonText';
+import Card from '../components/Card';
+import NeonGradient from '../components/NeonGradient';
 import Animated, { 
   useAnimatedStyle, 
   withSpring, 
@@ -47,7 +51,7 @@ export default function ChatScreen() {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState(MESSAGES);
   const [showAttachments, setShowAttachments] = useState(false);
-  const scrollViewRef = useRef(null);
+  const scrollViewRef = useRef<ScrollView>(null);
   const translateY = useSharedValue(1000);
   const inputHeight = useSharedValue(56);
   const attachmentsHeight = useSharedValue(0);
@@ -127,8 +131,13 @@ export default function ChatScreen() {
   };
 
   const handleCall = (type: 'audio' | 'video') => {
-    // Implement call logic here
-    console.log(`Starting ${type} call`);
+    router.push({
+      pathname: '/video-call',
+      params: {
+        name: 'Grace',
+        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=2574&auto=format&fit=crop'
+      }
+    });
   };
 
   return (
@@ -141,16 +150,23 @@ export default function ChatScreen() {
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color={theme.textPrimary} />
         </TouchableOpacity>
         
         <View style={styles.headerProfile}>
-          <Image 
-            source={{ uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=2574&auto=format&fit=crop' }}
-            style={styles.profileImage}
-          />
+          <NeonGradient style={styles.profileImageContainer}>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=2574&auto=format&fit=crop' }}
+              style={styles.profileImage}
+            />
+          </NeonGradient>
           <View>
-            <Text style={styles.profileName}>Grace</Text>
+            <NeonText 
+              text="Grace"
+              color={theme.neonPink}
+              size={16}
+              style={styles.profileName}
+            />
             <Text style={styles.onlineStatus}>Online</Text>
           </View>
         </View>
@@ -160,16 +176,16 @@ export default function ChatScreen() {
             style={styles.headerButton}
             onPress={() => handleCall('audio')}
           >
-            <Phone size={20} color="#000" />
+            <Phone size={20} color={theme.textPrimary} />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.headerButton}
             onPress={() => handleCall('video')}
           >
-            <Video size={20} color="#000" />
+            <Video size={20} color={theme.textPrimary} />
           </TouchableOpacity>
           <TouchableOpacity>
-            <MoreVertical size={24} color="#000" />
+            <MoreVertical size={24} color={theme.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -195,11 +211,15 @@ export default function ChatScreen() {
               msg.sender === 'me' ? styles.myMessage : styles.theirMessage
             ]}
           >
-            <View 
+            <NeonGradient 
               style={[
                 styles.messageBubble,
                 msg.sender === 'me' ? styles.myBubble : styles.theirBubble
               ]}
+              colors={msg.sender === 'me' ? 
+                [theme.neonPink, theme.neonPurple] : 
+                [theme.surfaceLight, theme.surface]
+              }
             >
               <Text style={[
                 styles.messageText,
@@ -207,7 +227,7 @@ export default function ChatScreen() {
               ]}>
                 {msg.text}
               </Text>
-            </View>
+            </NeonGradient>
             <Text style={styles.messageTime}>{msg.time}</Text>
           </Animated.View>
         ))}
@@ -216,19 +236,19 @@ export default function ChatScreen() {
       <Animated.View style={[styles.attachmentsContainer, attachmentsAnimation]}>
         <View style={styles.attachmentsGrid}>
           <TouchableOpacity style={styles.attachmentButton}>
-            <Camera size={24} color="#FF4B6A" />
+            <Camera size={24} color={theme.neonPink} />
             <Text style={styles.attachmentText}>Camera</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.attachmentButton}>
-            <ImageIcon size={24} color="#FF4B6A" />
+            <ImageIcon size={24} color={theme.neonPink} />
             <Text style={styles.attachmentText}>Gallery</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.attachmentButton}>
-            <Mic size={24} color="#FF4B6A" />
+            <Mic size={24} color={theme.neonPink} />
             <Text style={styles.attachmentText}>Audio</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.attachmentButton}>
-            <Paperclip size={24} color="#FF4B6A" />
+            <Paperclip size={24} color={theme.neonPink} />
             <Text style={styles.attachmentText}>Document</Text>
           </TouchableOpacity>
         </View>
@@ -241,7 +261,7 @@ export default function ChatScreen() {
         >
           <Paperclip 
             size={24} 
-            color="#666"
+            color={theme.textSecondary}
             style={{ transform: [{ rotate: showAttachments ? '45deg' : '0deg' }] }}
           />
         </TouchableOpacity>
@@ -249,6 +269,7 @@ export default function ChatScreen() {
         <TextInput
           style={[styles.input, { height: inputHeight.value }]}
           placeholder="Your message"
+          placeholderTextColor={theme.textSecondary}
           value={message}
           onChangeText={setMessage}
           multiline
@@ -263,7 +284,7 @@ export default function ChatScreen() {
             onPressIn={startRecording}
             onPressOut={stopRecording}
           >
-            <Mic size={24} color="#FF4B6A" />
+            <Mic size={24} color={theme.neonPink} />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity 
@@ -274,7 +295,7 @@ export default function ChatScreen() {
             {isSending ? (
               <Animated.View style={styles.sendingIndicator} />
             ) : (
-              <Send size={24} color="#FF4B6A" />
+              <Send size={24} color={theme.neonPink} />
             )}
           </TouchableOpacity>
         )}
@@ -286,7 +307,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -294,7 +315,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.border,
   },
   headerProfile: {
     flexDirection: 'row',
@@ -311,23 +332,28 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  profileImage: {
+  profileImageContainer: {
     width: 40,
     height: 40,
     borderRadius: 20,
     marginRight: 12,
+    padding: 2,
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 18,
   },
   profileName: {
-    fontSize: 16,
-    fontWeight: '600',
+    marginBottom: 4,
   },
   onlineStatus: {
     fontSize: 12,
-    color: '#FF4B6A',
+    color: theme.neonPink,
   },
   messagesContainer: {
     flex: 1,
@@ -337,7 +363,7 @@ const styles = StyleSheet.create({
   },
   dateHeader: {
     textAlign: 'center',
-    color: '#999',
+    color: theme.textSecondary,
     marginBottom: 20,
   },
   messageWrapper: {
@@ -356,30 +382,30 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   myBubble: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: theme.neonPink,
   },
   theirBubble: {
-    backgroundColor: '#fff5f7',
+    backgroundColor: theme.surfaceLight,
   },
   messageText: {
     fontSize: 16,
     lineHeight: 24,
   },
   myMessageText: {
-    color: '#000',
+    color: theme.textPrimary,
   },
   theirMessageText: {
-    color: '#000',
+    color: theme.textPrimary,
   },
   messageTime: {
     fontSize: 12,
-    color: '#999',
+    color: theme.textSecondary,
     alignSelf: 'flex-end',
   },
   attachmentsContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.surface,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: theme.border,
     overflow: 'hidden',
   },
   attachmentsGrid: {
@@ -393,19 +419,19 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#fff5f7',
+    backgroundColor: theme.surfaceLight,
   },
   attachmentText: {
     marginTop: 8,
     fontSize: 12,
-    color: '#666',
+    color: theme.textSecondary,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: theme.border,
   },
   attachButton: {
     padding: 8,
@@ -413,19 +439,20 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.surfaceLight,
     borderRadius: 24,
     paddingHorizontal: 20,
     paddingVertical: 12,
     marginRight: 12,
     fontSize: 16,
+    color: theme.textPrimary,
     maxHeight: 100,
   },
   sendButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#fff5f7',
+    backgroundColor: theme.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -433,7 +460,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#fff5f7',
+    backgroundColor: theme.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -445,7 +472,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#FF4B6A',
+    borderColor: theme.neonPink,
     borderTopColor: 'transparent',
     transform: [{ rotate: '45deg' }],
   },

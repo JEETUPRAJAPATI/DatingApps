@@ -3,6 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Platform, P
 import { router } from 'expo-router';
 import { ArrowLeft, Camera, Calendar, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from './_layout';
+import NeonText from '../components/NeonText';
+import GradientButton from '../components/GradientButton';
+import Card from '../components/Card';
+import NeonGradient from '../components/NeonGradient';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -69,32 +74,45 @@ export default function ProfileScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color={theme.textPrimary} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/gender')}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Profile details</Text>
+      <NeonText 
+        text="Profile details"
+        color={theme.neonPink}
+        size={32}
+        style={styles.title}
+      />
 
       <View style={styles.imageContainer}>
-        <Image
-          source={profileImage ? { uri: profileImage } : { uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop' }}
-          style={styles.profileImage}
-        />
+        <NeonGradient
+          style={styles.imageWrapper}
+          colors={[theme.neonPink, theme.neonPurple]}
+        >
+          <Image
+            source={profileImage ? { uri: profileImage } : { uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop' }}
+            style={styles.profileImage}
+          />
+        </NeonGradient>
         <TouchableOpacity style={styles.cameraButton}>
-          <Camera size={24} color="#fff" />
+          <Camera size={24} color={theme.textPrimary} />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.form}>
+      <Card style={styles.form}>
         <Text style={styles.label}>First name</Text>
         <TextInput
           style={styles.input}
           value={firstName}
           onChangeText={setFirstName}
           placeholder="Enter your first name"
+          placeholderTextColor={theme.textSecondary}
+          selectionColor={theme.neonPink}
+          color={theme.textPrimary}
         />
 
         <Text style={styles.label}>Last name</Text>
@@ -103,6 +121,9 @@ export default function ProfileScreen() {
           value={lastName}
           onChangeText={setLastName}
           placeholder="Enter your last name"
+          placeholderTextColor={theme.textSecondary}
+          selectionColor={theme.neonPink}
+          color={theme.textPrimary}
         />
 
         <Text style={styles.label}>Birthday</Text>
@@ -110,36 +131,38 @@ export default function ProfileScreen() {
           style={styles.dateButton}
           onPress={() => setShowDatePicker(true)}
         >
-          <Calendar size={20} color="#FF4B6A" style={styles.calendarIcon} />
+          <Calendar size={20} color={theme.neonPink} style={styles.calendarIcon} />
           <Text style={styles.dateButtonText}>
             {birthDate ? formatDate(birthDate) : 'Select your birthday'}
           </Text>
         </Pressable>
-      </View>
+      </Card>
 
-      <TouchableOpacity
-        style={[
-          styles.continueButton,
-          (!firstName || !lastName || !birthDate) && styles.continueButtonDisabled
-        ]}
+      <GradientButton
+        text="Continue"
         onPress={handleContinue}
         disabled={!firstName || !lastName || !birthDate}
-      >
-        <Text style={styles.continueButtonText}>Continue</Text>
-      </TouchableOpacity>
+        style={styles.continueButton}
+        gradientColors={[theme.neonPink, theme.neonPurple]}
+      />
 
       <Modal
         visible={showDatePicker}
+        transparent
         animationType="slide"
-        transparent={true}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.datePickerContainer}>
-            <Text style={styles.datePickerTitle}>Birthday</Text>
+          <Card style={styles.datePickerContainer}>
+            <NeonText 
+              text="Birthday"
+              color={theme.neonBlue}
+              size={24}
+              style={styles.datePickerTitle}
+            />
             
             <View style={styles.monthSelector}>
               <TouchableOpacity onPress={() => changeMonth(-1)}>
-                <ChevronLeft size={24} color="#000" />
+                <ChevronLeft size={24} color={theme.textPrimary} />
               </TouchableOpacity>
               
               <Text style={styles.monthYear}>
@@ -150,7 +173,7 @@ export default function ProfileScreen() {
               </Text>
               
               <TouchableOpacity onPress={() => changeMonth(1)}>
-                <ChevronRight size={24} color="#000" />
+                <ChevronRight size={24} color={theme.textPrimary} />
               </TouchableOpacity>
             </View>
 
@@ -183,13 +206,13 @@ export default function ProfileScreen() {
               ))}
             </View>
 
-            <TouchableOpacity 
-              style={styles.saveButton}
+            <GradientButton 
+              text="Save"
               onPress={saveDateSelection}
-            >
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
+              style={styles.saveButton}
+              gradientColors={[theme.neonPink, theme.neonPurple]}
+            />
+          </Card>
         </View>
       </Modal>
     </View>
@@ -199,7 +222,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
     padding: 20,
   },
   header: {
@@ -209,18 +232,20 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   skipText: {
-    color: '#FF4B6A',
+    color: theme.neonPink,
     fontSize: 16,
     fontWeight: '600',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
     marginBottom: 40,
   },
   imageContainer: {
     alignSelf: 'center',
     marginBottom: 40,
+  },
+  imageWrapper: {
+    padding: 3,
+    borderRadius: 60,
   },
   profileImage: {
     width: 120,
@@ -231,40 +256,49 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     bottom: 0,
-    backgroundColor: '#FF4B6A',
+    backgroundColor: theme.neonPink,
     width: 40,
     height: 40,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: theme.neonPink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
   form: {
     marginBottom: 40,
   },
   label: {
     fontSize: 16,
-    color: '#666',
+    color: theme.textSecondary,
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: theme.border,
     borderRadius: 12,
     padding: 15,
     fontSize: 16,
     marginBottom: 20,
+    backgroundColor: theme.surfaceLight,
+    color: theme.textPrimary,
   },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff5f7',
+    backgroundColor: theme.surfaceLight,
     padding: 15,
     borderRadius: 12,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   dateButtonText: {
     fontSize: 16,
-    color: '#FF4B6A',
+    color: theme.textPrimary,
     marginLeft: 10,
   },
   calendarIcon: {
@@ -272,20 +306,16 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: theme.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   datePickerContainer: {
-    backgroundColor: '#fff',
     width: '90%',
     padding: 20,
-    borderRadius: 20,
     alignItems: 'center',
   },
   datePickerTitle: {
-    fontSize: 24,
-    fontWeight: '600',
     marginBottom: 20,
   },
   monthSelector: {
@@ -298,7 +328,7 @@ const styles = StyleSheet.create({
   monthYear: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FF4B6A',
+    color: theme.neonBlue,
   },
   calendar: {
     flexDirection: 'row',
@@ -312,7 +342,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: theme.textSecondary,
   },
   dayButton: {
     width: '14.28%',
@@ -322,42 +352,27 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   selectedDay: {
-    backgroundColor: '#FF4B6A',
+    backgroundColor: theme.neonPink,
     borderRadius: 20,
+    shadowColor: theme.neonPink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
   dayText: {
     fontSize: 16,
+    color: theme.textPrimary,
   },
   selectedDayText: {
-    color: '#fff',
+    color: theme.textPrimary,
     fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#FF4B6A',
     width: '100%',
-    padding: 15,
-    borderRadius: 30,
     marginTop: 20,
   },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
   continueButton: {
-    backgroundColor: '#FF4B6A',
-    padding: 16,
-    borderRadius: 30,
-    alignItems: 'center',
     marginTop: 'auto',
-  },
-  continueButtonDisabled: {
-    backgroundColor: '#ffb3c1',
-  },
-  continueButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
   },
 });

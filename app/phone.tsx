@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Modal, Flat
 import { router } from 'expo-router';
 import { ChevronDown, ArrowLeft, Search, RefreshCw } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from './_layout';
+import NeonText from '../components/NeonText';
+import GradientButton from '../components/GradientButton';
+import Card from '../components/Card';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -37,28 +41,6 @@ const DEFAULT_COUNTRIES: Country[] = [
   { name: 'Brazil', dial_code: '+55', code: 'BR', flag: '🇧🇷' },
 ];
 
-const FETCH_TIMEOUT = 5000; // 5 seconds
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second
-
-async function fetchWithTimeout(url: string, timeout: number) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    clearTimeout(id);
-    return response;
-  } catch (error) {
-    clearTimeout(id);
-    throw error;
-  }
-}
-
-async function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export default function PhoneScreen() {
   const insets = useSafeAreaInsets();
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -69,7 +51,6 @@ export default function PhoneScreen() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
 
   const translateY = useSharedValue(height);
   const opacity = useSharedValue(0);
@@ -89,43 +70,6 @@ export default function PhoneScreen() {
       searchBarHeight.value = withTiming(0, { duration: 300 });
     }
   }, [isCountryModalVisible]);
-
-  const fetchCountries = async (retry = 0) => {
-    try {
-      setLoading(true);
-      setError(null);
-      setRetryCount(retry);
-
-      const response = await fetchWithTimeout('https://restcountries.com/v3.1/all', FETCH_TIMEOUT);
-      const data = await response.json();
-      
-      const formattedCountries = data
-        .filter((country: any) => country.idd?.root)
-        .map((country: any) => ({
-          name: country.name.common,
-          dial_code: country.idd.root + (country.idd.suffixes?.[0] || ''),
-          code: country.cca2,
-          flag: country.flag
-        }))
-        .sort((a: Country, b: Country) => a.name.localeCompare(b.name));
-
-      setCountries(formattedCountries);
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching countries:', error);
-      
-      if (retry < MAX_RETRIES) {
-        await delay(RETRY_DELAY);
-        return fetchCountries(retry + 1);
-      }
-      
-      setError('Failed to load countries. Please try again.');
-      // Fallback to default countries if API fails
-      setCountries(DEFAULT_COUNTRIES);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredCountries = countries.filter(country => 
     country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -178,46 +122,48 @@ export default function PhoneScreen() {
         style={styles.backButton}
         onPress={() => router.back()}
       >
-        <ArrowLeft size={24} color="#000" />
+        <ArrowLeft size={24} color={theme.textPrimary} />
       </TouchableOpacity>
 
-      <Text style={styles.title}>My mobile</Text>
+      <NeonText 
+        text="My mobile"
+        color={theme.neonPink}
+        size={32}
+        style={styles.title}
+      />
+
       <Text style={styles.description}>
         Please enter your valid phone number. We will send you a 4-digit code to verify your account.
       </Text>
 
-      <View style={styles.inputContainer}>
+      <Card style={styles.inputContainer}>
         <TouchableOpacity
           style={styles.countrySelector}
-          onPress={() => {
-            setIsCountryModalVisible(true);
-            if (countries.length === DEFAULT_COUNTRIES.length) {
-              fetchCountries();
-            }
-          }}
+          onPress={() => setIsCountryModalVisible(true)}
         >
           <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
           <Text style={styles.countryCode}>{selectedCountry.dial_code}</Text>
-          <ChevronDown size={20} color="#666" />
+          <ChevronDown size={20} color={theme.textSecondary} />
         </TouchableOpacity>
 
         <TextInput
           style={styles.input}
           placeholder="Enter phone number"
+          placeholderTextColor={theme.textSecondary}
           keyboardType="phone-pad"
           value={phoneNumber}
           onChangeText={setPhoneNumber}
           maxLength={10}
         />
-      </View>
+      </Card>
 
-      <TouchableOpacity
-        style={[styles.button, phoneNumber.length < 10 && styles.buttonDisabled]}
-        disabled={phoneNumber.length < 10}
+      <GradientButton
+        text="Continue"
         onPress={handleContinue}
-      >
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
+        disabled={phoneNumber.length < 10}
+        style={styles.button}
+        gradientColors={[theme.neonPink, theme.neonPurple]}
+      />
 
       <Modal
         visible={isCountryModalVisible}
@@ -235,16 +181,22 @@ export default function PhoneScreen() {
                 onPress={() => setIsCountryModalVisible(false)}
                 style={styles.closeButton}
               >
-                <ArrowLeft size={24} color="#000" />
+                <ArrowLeft size={24} color={theme.textPrimary} />
               </TouchableOpacity>
-              <Text style={styles.modalTitle}>Select Country</Text>
+              <NeonText 
+                text="Select Country"
+                color={theme.neonBlue}
+                size={20}
+                style={styles.modalTitle}
+              />
             </View>
 
             <Animated.View style={[styles.searchContainer, searchBarStyle]}>
-              <Search size={20} color="#999" style={styles.searchIcon} />
+              <Search size={20} color={theme.textSecondary} style={styles.searchIcon} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search country name or code"
+                placeholderTextColor={theme.textSecondary}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 onFocus={() => setIsSearchFocused(true)}
@@ -255,21 +207,16 @@ export default function PhoneScreen() {
 
             {loading ? (
               <View style={styles.loaderContainer}>
-                <ActivityIndicator size="large" color="#FF4B6A" />
-                {retryCount > 0 && (
-                  <Text style={styles.retryText}>
-                    Retrying... ({retryCount}/{MAX_RETRIES})
-                  </Text>
-                )}
+                <ActivityIndicator size="large" color={theme.neonPink} />
               </View>
             ) : error ? (
               <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>{error}</Text>
                 <TouchableOpacity
                   style={styles.retryButton}
-                  onPress={() => fetchCountries()}
+                  onPress={() => setCountries(DEFAULT_COUNTRIES)}
                 >
-                  <RefreshCw size={20} color="#fff" />
+                  <RefreshCw size={20} color={theme.textPrimary} />
                   <Text style={styles.retryButtonText}>Try Again</Text>
                 </TouchableOpacity>
               </View>
@@ -308,38 +255,34 @@ export default function PhoneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
     padding: 20,
   },
   backButton: {
     marginBottom: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
     marginBottom: 10,
   },
   description: {
     fontSize: 16,
-    color: '#666',
+    color: theme.textSecondary,
     marginBottom: 30,
     lineHeight: 24,
   },
   inputContainer: {
     flexDirection: 'row',
     marginBottom: 30,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
+    padding: 0,
     overflow: 'hidden',
   },
   countrySelector: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.surfaceLight,
     borderRightWidth: 1,
-    borderRightColor: '#ddd',
+    borderRightColor: theme.border,
   },
   countryFlag: {
     fontSize: 20,
@@ -348,35 +291,27 @@ const styles = StyleSheet.create({
   countryCode: {
     fontSize: 16,
     marginRight: 4,
+    color: theme.textPrimary,
   },
   input: {
     flex: 1,
     padding: 15,
     fontSize: 16,
+    color: theme.textPrimary,
+    backgroundColor: theme.surface,
   },
   button: {
-    backgroundColor: '#FF4B6A',
-    padding: 16,
-    borderRadius: 30,
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: '#ffb3c1',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+    marginTop: 'auto',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: theme.overlay,
   },
   dismissArea: {
     flex: 1,
   },
   modalContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     height: '80%',
@@ -386,21 +321,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.border,
   },
   closeButton: {
     marginRight: 15,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    flex: 1,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     margin: 20,
     paddingHorizontal: 15,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.surfaceLight,
     borderRadius: 10,
     overflow: 'hidden',
   },
@@ -411,15 +345,12 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     fontSize: 16,
+    color: theme.textPrimary,
   },
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  retryText: {
-    marginTop: 10,
-    color: '#666',
   },
   errorContainer: {
     flex: 1,
@@ -429,21 +360,21 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#FF4B6A',
+    color: theme.error,
     textAlign: 'center',
     marginBottom: 20,
   },
   retryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF4B6A',
+    backgroundColor: theme.neonPink,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 25,
     gap: 8,
   },
   retryButtonText: {
-    color: '#fff',
+    color: theme.textPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -452,10 +383,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.border,
   },
   selectedCountryItem: {
-    backgroundColor: '#fff5f7',
+    backgroundColor: theme.surfaceLight,
   },
   countryInfo: {
     flex: 1,
@@ -464,17 +395,18 @@ const styles = StyleSheet.create({
   countryName: {
     fontSize: 16,
     fontWeight: '500',
+    color: theme.textPrimary,
   },
   countryDialCode: {
     fontSize: 14,
-    color: '#666',
+    color: theme.textSecondary,
     marginTop: 2,
   },
   selectedIndicator: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#FF4B6A',
+    backgroundColor: theme.neonPink,
     marginRight: 15,
   },
 });

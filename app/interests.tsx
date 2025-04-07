@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { router } from 'expo-router';
 import { ArrowLeft, Camera, ShoppingBag, Mic as Mic2, Cog as Yoga, UtensilsCrossed, Tent as Tennis, FileWarning as Running, Waves, Palette, Mountain, Wine, Gamepad, Music } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from './_layout';
+import NeonText from '../components/NeonText';
+import GradientButton from '../components/GradientButton';
+import Card from '../components/Card';
 
 const INTERESTS = [
   { id: 'photography', icon: Camera, label: 'Photography' },
@@ -42,14 +46,20 @@ export default function InterestsScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color={theme.textPrimary} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/search-friends')}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Your interests</Text>
+      <NeonText 
+        text="Your interests"
+        color={theme.neonPink}
+        size={32}
+        style={styles.title}
+      />
+      
       <Text style={styles.subtitle}>
         Select a few of your interests and let everyone know what you're passionate about.
       </Text>
@@ -58,7 +68,7 @@ export default function InterestsScreen() {
         style={styles.interestsContainer}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.interestsGrid}>
+        <Card style={styles.interestsGrid}>
           {INTERESTS.map(interest => {
             const Icon = interest.icon;
             const isSelected = selectedInterests.includes(interest.id);
@@ -74,7 +84,7 @@ export default function InterestsScreen() {
               >
                 <Icon
                   size={24}
-                  color={isSelected ? '#fff' : '#FF4B6A'}
+                  color={isSelected ? theme.textPrimary : theme.neonPink}
                 />
                 <Text style={[
                   styles.interestText,
@@ -85,19 +95,16 @@ export default function InterestsScreen() {
               </TouchableOpacity>
             );
           })}
-        </View>
+        </Card>
       </ScrollView>
 
-      <TouchableOpacity
-        style={[
-          styles.continueButton,
-          selectedInterests.length === 0 && styles.continueButtonDisabled,
-        ]}
+      <GradientButton
+        text="Continue"
         onPress={handleContinue}
         disabled={selectedInterests.length === 0}
-      >
-        <Text style={styles.continueButtonText}>Continue</Text>
-      </TouchableOpacity>
+        style={styles.continueButton}
+        gradientColors={[theme.neonPink, theme.neonPurple]}
+      />
     </View>
   );
 }
@@ -105,7 +112,7 @@ export default function InterestsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
     padding: 20,
   },
   header: {
@@ -115,18 +122,16 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   skipText: {
-    color: '#FF4B6A',
+    color: theme.neonPink,
     fontSize: 16,
     fontWeight: '600',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: theme.textSecondary,
     marginBottom: 30,
     lineHeight: 24,
   },
@@ -138,7 +143,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
-    paddingBottom: 20,
+    padding: 16,
   },
   interestButton: {
     flexDirection: 'row',
@@ -148,32 +153,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 30,
     borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
+    borderColor: theme.border,
+    backgroundColor: theme.surface,
   },
   interestButtonSelected: {
-    backgroundColor: '#FF4B6A',
-    borderColor: '#FF4B6A',
+    backgroundColor: theme.neonPink,
+    borderColor: theme.neonPink,
+    shadowColor: theme.neonPink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
   interestText: {
     fontSize: 16,
-    color: '#000',
+    color: theme.textPrimary,
   },
   interestTextSelected: {
-    color: '#fff',
+    color: theme.textPrimary,
+    fontWeight: '600',
   },
   continueButton: {
-    backgroundColor: '#FF4B6A',
-    padding: 16,
-    borderRadius: 30,
-    alignItems: 'center',
-  },
-  continueButtonDisabled: {
-    backgroundColor: '#ffb3c1',
-  },
-  continueButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+    marginTop: 'auto',
   },
 });

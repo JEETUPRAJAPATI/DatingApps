@@ -2,6 +2,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from './_layout';
+import { LinearGradient } from 'expo-linear-gradient';
+import NeonText from '../components/NeonText';
+import NeonGradient from '../components/NeonGradient';
+import GradientButton from '../components/GradientButton';
 
 export default function SignInScreen() {
   const insets = useSafeAreaInsets();
@@ -12,23 +17,33 @@ export default function SignInScreen() {
         style={styles.backButton}
         onPress={() => router.back()}
       >
-        <ArrowLeft size={24} color="#000" />
+        <ArrowLeft size={24} color={theme.textPrimary} />
       </TouchableOpacity>
 
       <View style={styles.content}>
-        <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>Heart2get</Text>
+        <NeonGradient style={styles.logoContainer}>
+          <NeonText 
+            text="Heart2get"
+            color={theme.neonPink}
+            size={36}
+            style={styles.logoText}
+          />
           <Text style={styles.tagline}>Find your perfect match</Text>
-        </View>
+        </NeonGradient>
         
-        <Text style={styles.title}>Sign up to continue</Text>
+        <NeonText 
+          text="Sign up to continue"
+          color={theme.neonBlue}
+          size={24}
+          style={styles.title}
+        />
 
-        <TouchableOpacity 
-          style={styles.emailButton}
+        <GradientButton
+          text="Continue with email"
           onPress={() => router.push('/phone')}
-        >
-          <Text style={styles.emailButtonText}>Continue with email</Text>
-        </TouchableOpacity>
+          style={styles.emailButton}
+          gradientColors={[theme.neonPink, theme.neonPurple]}
+        />
 
         <TouchableOpacity 
           style={styles.phoneButton}
@@ -78,7 +93,7 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
   },
   backButton: {
     padding: 20,
@@ -91,46 +106,34 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: 40,
+    padding: 20,
+    borderRadius: 20,
   },
   logoText: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: '#FF4B6A',
     marginBottom: 8,
   },
   tagline: {
     fontSize: 16,
-    color: '#666',
+    color: theme.textSecondary,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
     marginBottom: 40,
   },
   emailButton: {
-    backgroundColor: '#FF4B6A',
     width: '100%',
-    padding: 16,
-    borderRadius: 30,
     marginBottom: 16,
   },
-  emailButtonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   phoneButton: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.surface,
     width: '100%',
     padding: 16,
     borderRadius: 30,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: theme.border,
     marginBottom: 30,
   },
   phoneButtonText: {
-    color: '#000',
+    color: theme.textPrimary,
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '600',
@@ -144,11 +147,11 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ddd',
+    backgroundColor: theme.border,
   },
   dividerText: {
     marginHorizontal: 10,
-    color: '#666',
+    color: theme.textSecondary,
   },
   socialContainer: {
     flexDirection: 'row',
@@ -160,9 +163,9 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#fff',
+    backgroundColor: theme.surface,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: theme.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -179,9 +182,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   termsText: {
-    color: '#666',
+    color: theme.textSecondary,
   },
   privacyText: {
-    color: '#666',
+    color: theme.textSecondary,
   },
 });

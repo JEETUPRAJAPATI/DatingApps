@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { ArrowLeft, Check } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from './_layout';
+import NeonText from '../components/NeonText';
+import GradientButton from '../components/GradientButton';
+import Card from '../components/Card';
 
 type Gender = 'man' | 'woman' | 'other';
 
@@ -20,75 +24,80 @@ export default function GenderScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color={theme.textPrimary} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/interests')}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>I am a</Text>
+      <NeonText 
+        text="I am a"
+        color={theme.neonPink}
+        size={32}
+        style={styles.title}
+      />
 
       <View style={styles.options}>
-        <TouchableOpacity
-          style={[
-            styles.option,
-            selectedGender === 'woman' && styles.optionSelected,
-          ]}
-          onPress={() => setSelectedGender('woman')}
-        >
-          <Text style={[
-            styles.optionText,
-            selectedGender === 'woman' && styles.optionTextSelected,
-          ]}>Woman</Text>
-          {selectedGender === 'woman' && (
-            <Check size={24} color="#fff" />
-          )}
-        </TouchableOpacity>
+        <Card>
+          <TouchableOpacity
+            style={[
+              styles.option,
+              selectedGender === 'woman' && styles.optionSelected,
+            ]}
+            onPress={() => setSelectedGender('woman')}
+          >
+            <Text style={[
+              styles.optionText,
+              selectedGender === 'woman' && styles.optionTextSelected,
+            ]}>Woman</Text>
+            {selectedGender === 'woman' && (
+              <Check size={24} color={theme.textPrimary} />
+            )}
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.option,
-            selectedGender === 'man' && styles.optionSelected,
-          ]}
-          onPress={() => setSelectedGender('man')}
-        >
-          <Text style={[
-            styles.optionText,
-            selectedGender === 'man' && styles.optionTextSelected,
-          ]}>Man</Text>
-          {selectedGender === 'man' && (
-            <Check size={24} color="#fff" />
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.option,
+              selectedGender === 'man' && styles.optionSelected,
+            ]}
+            onPress={() => setSelectedGender('man')}
+          >
+            <Text style={[
+              styles.optionText,
+              selectedGender === 'man' && styles.optionTextSelected,
+            ]}>Man</Text>
+            {selectedGender === 'man' && (
+              <Check size={24} color={theme.textPrimary} />
+            )}
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.option,
-            selectedGender === 'other' && styles.optionSelected,
-          ]}
-          onPress={() => setSelectedGender('other')}
-        >
-          <Text style={[
-            styles.optionText,
-            selectedGender === 'other' && styles.optionTextSelected,
-          ]}>Choose another</Text>
-          {selectedGender === 'other' && (
-            <Check size={24} color="#fff" />
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.option,
+              selectedGender === 'other' && styles.optionSelected,
+              styles.lastOption,
+            ]}
+            onPress={() => setSelectedGender('other')}
+          >
+            <Text style={[
+              styles.optionText,
+              selectedGender === 'other' && styles.optionTextSelected,
+            ]}>Choose another</Text>
+            {selectedGender === 'other' && (
+              <Check size={24} color={theme.textPrimary} />
+            )}
+          </TouchableOpacity>
+        </Card>
       </View>
 
-      <TouchableOpacity
-        style={[
-          styles.continueButton,
-          !selectedGender && styles.continueButtonDisabled,
-        ]}
+      <GradientButton
+        text="Continue"
         onPress={handleContinue}
         disabled={!selectedGender}
-      >
-        <Text style={styles.continueButtonText}>Continue</Text>
-      </TouchableOpacity>
+        style={styles.continueButton}
+        gradientColors={[theme.neonPink, theme.neonPurple]}
+      />
     </View>
   );
 }
@@ -96,7 +105,7 @@ export default function GenderScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
     padding: 20,
   },
   header: {
@@ -106,13 +115,11 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   skipText: {
-    color: '#FF4B6A',
+    color: theme.neonPink,
     fontSize: 16,
     fontWeight: '600',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
     marginBottom: 40,
   },
   options: {
@@ -123,34 +130,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+  },
+  lastOption: {
+    borderBottomWidth: 0,
   },
   optionSelected: {
-    backgroundColor: '#FF4B6A',
-    borderColor: '#FF4B6A',
+    backgroundColor: theme.surfaceLight,
   },
   optionText: {
     fontSize: 18,
-    color: '#000',
+    color: theme.textPrimary,
   },
   optionTextSelected: {
-    color: '#fff',
+    color: theme.neonPink,
+    fontWeight: '600',
   },
   continueButton: {
-    backgroundColor: '#FF4B6A',
-    padding: 16,
-    borderRadius: 30,
-    alignItems: 'center',
     marginTop: 'auto',
-  },
-  continueButtonDisabled: {
-    backgroundColor: '#ffb3c1',
-  },
-  continueButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
   },
 });

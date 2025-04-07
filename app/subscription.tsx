@@ -3,6 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'rea
 import { router } from 'expo-router';
 import { ArrowLeft, Check, Video, Clock, Star, Crown } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from './_layout';
+import NeonText from '../components/NeonText';
+import Card from '../components/Card';
+import NeonGradient from '../components/NeonGradient';
+import GradientButton from '../components/GradientButton';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const PLANS = [
@@ -17,7 +22,7 @@ const PLANS = [
       'See who likes you',
       'Unlimited likes',
     ],
-    color: '#FF4B6A',
+    color: theme.neonPink,
     popular: false,
   },
   {
@@ -33,7 +38,7 @@ const PLANS = [
       'Rewind to missed matches',
       'Monthly boost',
     ],
-    color: '#8B5CF6',
+    color: theme.neonBlue,
     popular: true,
   },
   {
@@ -51,7 +56,7 @@ const PLANS = [
       'VIP support',
       'Message before matching',
     ],
-    color: '#F59E0B',
+    color: theme.neonPurple,
     popular: false,
   }
 ];
@@ -64,9 +69,14 @@ export default function SubscriptionScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color={theme.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Upgrade Plan</Text>
+        <NeonText 
+          text="Upgrade Plan"
+          color={theme.neonPink}
+          size={18}
+          style={styles.headerTitle}
+        />
         <View style={{ width: 24 }} />
       </View>
 
@@ -74,19 +84,24 @@ export default function SubscriptionScreen() {
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.hero}>
+        <Card style={styles.hero}>
           <Image 
             source={{ uri: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2574&auto=format&fit=crop' }}
             style={styles.heroImage}
           />
           <View style={styles.heroContent}>
-            <Crown size={32} color="#F59E0B" />
-            <Text style={styles.heroTitle}>Unlock Premium Features</Text>
+            <Crown size={32} color={theme.neonBlue} />
+            <NeonText 
+              text="Unlock Premium Features"
+              color={theme.neonBlue}
+              size={24}
+              style={styles.heroTitle}
+            />
             <Text style={styles.heroSubtitle}>
               Get more matches and better conversations with premium features
             </Text>
           </View>
-        </View>
+        </Card>
 
         <View style={styles.plans}>
           {PLANS.map((plan, index) => (
@@ -103,14 +118,22 @@ export default function SubscriptionScreen() {
                 onPress={() => setSelectedPlan(plan.id)}
               >
                 {plan.popular && (
-                  <View style={[styles.popularTag, { backgroundColor: plan.color }]}>
-                    <Star size={12} color="#fff" fill="#fff" />
+                  <NeonGradient 
+                    style={styles.popularTag}
+                    colors={[theme.neonPink, theme.neonPurple]}
+                  >
+                    <Star size={12} color={theme.textPrimary} fill={theme.textPrimary} />
                     <Text style={styles.popularText}>MOST POPULAR</Text>
-                  </View>
+                  </NeonGradient>
                 )}
 
                 <View style={styles.planHeader}>
-                  <Text style={styles.planName}>{plan.name}</Text>
+                  <NeonText 
+                    text={plan.name}
+                    color={plan.color}
+                    size={20}
+                    style={styles.planName}
+                  />
                   <View style={styles.priceContainer}>
                     <Text style={styles.currency}>$</Text>
                     <Text style={styles.price}>{plan.price}</Text>
@@ -151,15 +174,15 @@ export default function SubscriptionScreen() {
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 20 }]}>
-        <TouchableOpacity 
-          style={styles.subscribeButton}
+        <GradientButton 
+          text="Subscribe Now"
           onPress={() => {
             // Handle subscription
             router.back();
           }}
-        >
-          <Text style={styles.subscribeText}>Subscribe Now</Text>
-        </TouchableOpacity>
+          style={styles.subscribeButton}
+          gradientColors={[theme.neonPink, theme.neonPurple]}
+        />
       </View>
     </View>
   );
@@ -168,7 +191,7 @@ export default function SubscriptionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -178,25 +201,15 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    marginBottom: 0,
   },
   content: {
     flex: 1,
   },
   hero: {
     margin: 20,
-    borderRadius: 20,
+    padding: 0,
     overflow: 'hidden',
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
   },
   heroImage: {
     width: '100%',
@@ -207,14 +220,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   heroTitle: {
-    fontSize: 24,
-    fontWeight: '700',
     marginVertical: 10,
     textAlign: 'center',
   },
   heroSubtitle: {
     fontSize: 16,
-    color: '#666',
+    color: theme.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -224,14 +235,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   planCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.surface,
     borderRadius: 20,
     padding: 20,
     borderWidth: 2,
-    borderColor: '#ddd',
-  },
-  selectedPlan: {
-    shadowColor: '#000',
+    shadowColor: theme.neonPink,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -239,6 +247,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 8,
+  },
+  selectedPlan: {
+    backgroundColor: theme.surfaceLight,
   },
   popularTag: {
     position: 'absolute',
@@ -252,7 +263,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   popularText: {
-    color: '#fff',
+    color: theme.textPrimary,
     fontSize: 10,
     fontWeight: '600',
   },
@@ -260,8 +271,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   planName: {
-    fontSize: 20,
-    fontWeight: '600',
     marginBottom: 8,
   },
   priceContainer: {
@@ -271,16 +280,17 @@ const styles = StyleSheet.create({
   currency: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#666',
+    color: theme.textSecondary,
   },
   price: {
     fontSize: 32,
     fontWeight: '700',
     marginHorizontal: 2,
+    color: theme.textPrimary,
   },
   duration: {
     fontSize: 16,
-    color: '#666',
+    color: theme.textSecondary,
     marginBottom: 4,
   },
   planFeatures: {
@@ -294,7 +304,7 @@ const styles = StyleSheet.create({
   },
   featureText: {
     fontSize: 14,
-    color: '#666',
+    color: theme.textSecondary,
   },
   planStats: {
     flexDirection: 'row',
@@ -302,7 +312,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: theme.border,
   },
   statItem: {
     alignItems: 'center',
@@ -311,30 +321,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginVertical: 4,
+    color: theme.textPrimary,
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: theme.textSecondary,
   },
   statDivider: {
     width: 1,
     height: 40,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: theme.border,
   },
   footer: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: theme.border,
   },
   subscribeButton: {
-    backgroundColor: '#FF4B6A',
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: 'center',
-  },
-  subscribeText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+    width: '100%',
   },
 });

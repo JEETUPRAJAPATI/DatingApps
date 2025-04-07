@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { router } from 'expo-router';
-import { Settings, CreditCard as Edit3, MapPin, ChevronRight, Camera, Globe, Briefcase, GraduationCap, Heart, Music, Crown } from 'lucide-react-native';
+import { Settings, MapPin, ChevronRight, Camera, Globe, Briefcase, GraduationCap, Heart, Music, Crown } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from '../_layout';
+import NeonText from '../../components/NeonText';
+import Card from '../../components/Card';
+import NeonGradient from '../../components/NeonGradient';
+import GradientButton from '../../components/GradientButton';
 
 const INTERESTS = [
   { id: 'travel', name: 'Travel ✈️' },
@@ -34,23 +39,25 @@ export default function ProfileScreen() {
     ]
   });
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // Here you would typically save to backend
-  };
-
   return (
     <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Image 
-            source={{ uri: profileData.photos[0] }}
-            style={styles.profileIcon}
-          />
+          <NeonGradient style={styles.profileIconContainer}>
+            <Image 
+              source={{ uri: profileData.photos[0] }}
+              style={styles.profileIcon}
+            />
+          </NeonGradient>
           <View>
-            <Text style={styles.headerName}>{profileData.name}</Text>
+            <NeonText 
+              text={profileData.name}
+              color={theme.neonPink}
+              size={18}
+              style={styles.headerName}
+            />
             <Text style={styles.headerLocation}>
-              <MapPin size={14} color="#666" /> {profileData.location}
+              <MapPin size={14} color={theme.textSecondary} /> {profileData.location}
             </Text>
           </View>
         </View>
@@ -60,19 +67,19 @@ export default function ProfileScreen() {
             style={styles.upgradeButton}
             onPress={() => router.push('/subscription')}
           >
-            <Crown size={20} color="#F59E0B" />
+            <Crown size={20} color={theme.neonBlue} />
             <Text style={styles.upgradeText}>Premium</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.settingsButton}
             onPress={() => router.push('/settings')}
           >
-            <Settings size={24} color="#000" />
+            <Settings size={24} color={theme.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>
 
-      <View style={styles.photosSection}>
+      <Card style={styles.photosSection}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Photos</Text>
           <TouchableOpacity onPress={() => setIsEditing(true)}>
@@ -85,109 +92,76 @@ export default function ProfileScreen() {
           style={styles.photosContainer}
         >
           {profileData.photos.map((photo, index) => (
-            <View key={index} style={styles.photoContainer}>
+            <NeonGradient 
+              key={index} 
+              style={styles.photoContainer}
+              colors={[theme.neonPink, theme.neonPurple]}
+            >
               <Image source={{ uri: photo }} style={styles.photo} />
-              {isEditing && (
-                <TouchableOpacity style={styles.removePhotoButton}>
-                  <Text style={styles.removePhotoText}>×</Text>
-                </TouchableOpacity>
-              )}
-            </View>
+            </NeonGradient>
           ))}
-          {isEditing && (
-            <TouchableOpacity style={styles.addPhotoButton}>
-              <Camera size={24} color="#666" />
-              <Text style={styles.addPhotoText}>Add Photo</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity style={styles.addPhotoButton}>
+            <Camera size={24} color={theme.textSecondary} />
+            <Text style={styles.addPhotoText}>Add Photo</Text>
+          </TouchableOpacity>
         </ScrollView>
-      </View>
+      </Card>
 
-      <View style={styles.section}>
+      <Card style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>About</Text>
           <TouchableOpacity onPress={() => setIsEditing(true)}>
             <Text style={styles.editText}>Edit</Text>
           </TouchableOpacity>
         </View>
-        {isEditing ? (
-          <TextInput
-            style={styles.bioInput}
-            multiline
-            value={profileData.bio}
-            onChangeText={(text) => setProfileData({ ...profileData, bio: text })}
-            placeholder="Tell us about yourself..."
-          />
-        ) : (
-          <Text style={styles.bioText}>{profileData.bio}</Text>
-        )}
-      </View>
+        <Text style={styles.bioText}>{profileData.bio}</Text>
+      </Card>
 
-      <View style={styles.section}>
+      <Card style={styles.section}>
         <Text style={styles.sectionTitle}>Basic Info</Text>
         
         <View style={styles.infoRow}>
           <View style={styles.infoIcon}>
-            <Briefcase size={20} color="#666" />
+            <Briefcase size={20} color={theme.neonPink} />
           </View>
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Work</Text>
             <Text style={styles.infoValue}>{profileData.occupation} at {profileData.company}</Text>
           </View>
-          {isEditing && (
-            <TouchableOpacity style={styles.editButton}>
-              <ChevronRight size={20} color="#666" />
-            </TouchableOpacity>
-          )}
         </View>
 
         <View style={styles.infoRow}>
           <View style={styles.infoIcon}>
-            <GraduationCap size={20} color="#666" />
+            <GraduationCap size={20} color={theme.neonBlue} />
           </View>
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Education</Text>
             <Text style={styles.infoValue}>{profileData.education}</Text>
           </View>
-          {isEditing && (
-            <TouchableOpacity style={styles.editButton}>
-              <ChevronRight size={20} color="#666" />
-            </TouchableOpacity>
-          )}
         </View>
 
         <View style={styles.infoRow}>
           <View style={styles.infoIcon}>
-            <Globe size={20} color="#666" />
+            <Globe size={20} color={theme.neonPurple} />
           </View>
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Languages</Text>
             <Text style={styles.infoValue}>{profileData.languages.join(', ')}</Text>
           </View>
-          {isEditing && (
-            <TouchableOpacity style={styles.editButton}>
-              <ChevronRight size={20} color="#666" />
-            </TouchableOpacity>
-          )}
         </View>
 
         <View style={styles.infoRow}>
           <View style={styles.infoIcon}>
-            <Heart size={20} color="#666" />
+            <Heart size={20} color={theme.neonPink} />
           </View>
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Looking for</Text>
             <Text style={styles.infoValue}>{profileData.relationshipGoal}</Text>
           </View>
-          {isEditing && (
-            <TouchableOpacity style={styles.editButton}>
-              <ChevronRight size={20} color="#666" />
-            </TouchableOpacity>
-          )}
         </View>
-      </View>
+      </Card>
 
-      <View style={styles.section}>
+      <Card style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Interests</Text>
           <TouchableOpacity onPress={() => setIsEditing(true)}>
@@ -196,37 +170,31 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.interestsContainer}>
           {profileData.interests.map((interest) => (
-            <View key={interest.id} style={styles.interestTag}>
+            <NeonGradient
+              key={interest.id}
+              style={styles.interestTag}
+              colors={[theme.neonPink, theme.neonPurple]}
+            >
               <Text style={styles.interestText}>{interest.name}</Text>
-              {isEditing && (
-                <TouchableOpacity style={styles.removeInterestButton}>
-                  <Text style={styles.removeInterestText}>×</Text>
-                </TouchableOpacity>
-              )}
-            </View>
+            </NeonGradient>
           ))}
-          {isEditing && (
-            <TouchableOpacity style={styles.addInterestButton}>
-              <Text style={styles.addInterestText}>+ Add Interest</Text>
-            </TouchableOpacity>
-          )}
         </View>
-      </View>
+      </Card>
 
       {isEditing && (
         <View style={styles.editActions}>
-          <TouchableOpacity 
-            style={styles.cancelButton}
+          <GradientButton
+            text="Cancel"
             onPress={() => setIsEditing(false)}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
+            style={styles.cancelButton}
+            gradientColors={[theme.surfaceLight, theme.surface]}
+          />
+          <GradientButton
+            text="Save Changes"
+            onPress={() => setIsEditing(false)}
             style={styles.saveButton}
-            onPress={handleSave}
-          >
-            <Text style={styles.saveButtonText}>Save Changes</Text>
-          </TouchableOpacity>
+            gradientColors={[theme.neonPink, theme.neonPurple]}
+          />
         </View>
       )}
     </ScrollView>
@@ -236,7 +204,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -250,18 +218,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  profileIcon: {
+  profileIconContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
+    padding: 2,
+  },
+  profileIcon: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 22,
   },
   headerName: {
-    fontSize: 18,
-    fontWeight: '600',
+    marginBottom: 4,
   },
   headerLocation: {
     fontSize: 14,
-    color: '#666',
+    color: theme.textSecondary,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -273,24 +246,22 @@ const styles = StyleSheet.create({
   upgradeButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FEF3C7',
+    backgroundColor: `${theme.neonBlue}20`,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     gap: 4,
   },
   upgradeText: {
-    color: '#F59E0B',
+    color: theme.neonBlue,
     fontSize: 14,
     fontWeight: '600',
   },
   settingsButton: {
     padding: 8,
   },
-  section: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+  photosSection: {
+    marginBottom: 20,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -301,83 +272,62 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
+    color: theme.textPrimary,
   },
   editText: {
-    color: '#FF4B6A',
+    color: theme.neonPink,
     fontSize: 16,
     fontWeight: '500',
   },
   photosContainer: {
     flexDirection: 'row',
-    paddingBottom: 16,
   },
   photoContainer: {
     marginRight: 12,
-    position: 'relative',
+    borderRadius: 12,
+    padding: 2,
   },
   photo: {
     width: 120,
     height: 160,
-    borderRadius: 12,
-  },
-  removePhotoButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  removePhotoText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+    borderRadius: 10,
   },
   addPhotoButton: {
     width: 120,
     height: 160,
     borderRadius: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#ddd',
+    borderWidth: 1,
+    borderColor: theme.border,
     borderStyle: 'dashed',
   },
   addPhotoText: {
     marginTop: 8,
-    color: '#666',
+    color: theme.textSecondary,
     fontSize: 14,
   },
-  bioInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    padding: 12,
-    fontSize: 16,
-    minHeight: 100,
-    textAlignVertical: 'top',
+  section: {
+    marginBottom: 20,
   },
   bioText: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#333',
+    color: theme.textSecondary,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.border,
   },
   infoIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.surfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -387,15 +337,12 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: '#666',
+    color: theme.textSecondary,
     marginBottom: 2,
   },
   infoValue: {
     fontSize: 16,
-    color: '#000',
-  },
-  editButton: {
-    padding: 8,
+    color: theme.textPrimary,
   },
   interestsContainer: {
     flexDirection: 'row',
@@ -403,74 +350,25 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   interestTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
   },
   interestText: {
     fontSize: 14,
-    marginRight: 8,
-  },
-  removeInterestButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#ddd',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  removeInterestText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-  },
-  addInterestButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderStyle: 'dashed',
-  },
-  addInterestText: {
-    fontSize: 14,
-    color: '#666',
+    color: theme.textPrimary,
   },
   editActions: {
     flexDirection: 'row',
     gap: 12,
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: theme.border,
   },
   cancelButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: '#f5f5f5',
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    color: '#666',
-    fontWeight: '600',
   },
   saveButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: '#FF4B6A',
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '600',
   },
 });

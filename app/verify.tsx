@@ -1,8 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from './_layout';
+import NeonText from '../components/NeonText';
+import GradientButton from '../components/GradientButton';
 import Animated, {
   useAnimatedStyle,
   withSequence,
@@ -88,15 +91,19 @@ export default function VerifyScreen() {
         style={styles.backButton}
         onPress={() => router.back()}
       >
-        <ArrowLeft size={24} color="#000" />
+        <ArrowLeft size={24} color={theme.textPrimary} />
       </TouchableOpacity>
 
-      <Text style={styles.timer}>
-        {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:
-        {String(timeLeft % 60).padStart(2, '0')}
-      </Text>
+      <NeonText
+        text={`${String(Math.floor(timeLeft / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`}
+        color={theme.neonBlue}
+        size={48}
+        style={styles.timer}
+      />
 
-      <Text style={styles.title}>Type the verification code we've sent you</Text>
+      <Text style={styles.title}>
+        Type the verification code we've sent you
+      </Text>
 
       <Animated.View style={[styles.codeContainer, shakeAnimation]}>
         {code.map((digit, index) => (
@@ -117,21 +124,13 @@ export default function VerifyScreen() {
         ))}
       </Animated.View>
 
-      <TouchableOpacity
-        style={[
-          styles.resendButton,
-          (timeLeft > 0 || isResending) && styles.resendButtonDisabled,
-        ]}
+      <GradientButton
+        text={isResending ? 'Sending...' : 'Send code again'}
         onPress={handleResend}
         disabled={timeLeft > 0 || isResending}
-      >
-        <Text style={[
-          styles.resendText,
-          (timeLeft > 0 || isResending) && styles.resendTextDisabled,
-        ]}>
-          {isResending ? 'Sending...' : 'Send code again'}
-        </Text>
-      </TouchableOpacity>
+        style={styles.resendButton}
+        gradientColors={[theme.neonPink, theme.neonPurple]}
+      />
     </View>
   );
 }
@@ -139,15 +138,13 @@ export default function VerifyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
     padding: 20,
   },
   backButton: {
     marginBottom: 20,
   },
   timer: {
-    fontSize: 48,
-    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -155,7 +152,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     marginBottom: 40,
-    color: '#666',
+    color: theme.textSecondary,
   },
   codeContainer: {
     flexDirection: 'row',
@@ -166,33 +163,32 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    borderWidth: 2,
+    borderColor: theme.border,
     fontSize: 24,
     textAlign: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: theme.surface,
+    color: theme.textPrimary,
   },
   codeInputFilled: {
-    borderColor: '#FF4B6A',
-    backgroundColor: '#fff5f7',
+    borderColor: theme.neonPink,
+    backgroundColor: theme.surfaceLight,
+    shadowColor: theme.neonPink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
   codeInputError: {
-    borderColor: '#FF4B6A',
-    backgroundColor: '#fff5f7',
+    borderColor: theme.error,
+    backgroundColor: `${theme.error}20`,
+    shadowColor: theme.error,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
   resendButton: {
-    padding: 15,
-    alignItems: 'center',
-  },
-  resendButtonDisabled: {
-    opacity: 0.5,
-  },
-  resendText: {
-    color: '#FF4B6A',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  resendTextDisabled: {
-    color: '#666',
+    marginTop: 'auto',
   },
 });

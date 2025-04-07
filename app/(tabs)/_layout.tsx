@@ -1,17 +1,18 @@
 import { Tabs } from 'expo-router';
 import { Heart, MessageCircle, User, Users } from 'lucide-react-native';
+import { theme } from '../_layout';
+import { StyleSheet } from 'react-native';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FF4B6A',
-        tabBarInactiveTintColor: '#999',
-        tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: '#f0f0f0',
-        },
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.textMuted,
+        tabBarStyle: styles.tabBar,
         headerShown: false,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: styles.tabLabel,
       }}>
       <Tabs.Screen
         name="index"
@@ -52,3 +53,18 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: theme.surface,
+    borderTopWidth: 1,
+    borderTopColor: theme.border,
+    height: 60,
+    paddingBottom: 8,
+    paddingTop: 8,
+  },
+  tabLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+});
