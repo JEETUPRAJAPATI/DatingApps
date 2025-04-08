@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
-import { Heart, X, Star } from 'lucide-react-native';
+import { useState, useRef } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, Animated } from 'react-native';
+import { Heart, X, Star, MapPin, Briefcase } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../_layout';
 import NeonText from '../../components/NeonText';
@@ -20,7 +20,11 @@ const PROFILES = [
     location: 'Chicago, IL',
     bio: "My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading..",
     interests: ['Travelling', 'Books', 'Music', 'Dancing', 'Modeling'],
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+    images: [
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2574&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=2574&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=2574&auto=format&fit=crop'
+    ]
   },
   {
     id: '2',
@@ -31,57 +35,114 @@ const PROFILES = [
     location: 'New York, NY',
     bio: "Tech enthusiast by day, adventurer by night. Looking for someone to share coding jokes and hiking trails with.",
     interests: ['Coding', 'Hiking', 'Photography', 'Travel', 'Coffee'],
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+    images: [
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=2574&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1517365830460-955ce3ccd263?q=80&w=2574&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1519419691348-3b3433c4c20e?q=80&w=2574&auto=format&fit=crop'
+    ]
   }
 ];
 
 export default function DiscoverScreen() {
   const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [imageError, setImageError] = useState(false);
+  const [expandedView, setExpandedView] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const currentProfile = PROFILES[currentIndex];
 
   const handleLike = () => {
     if (currentIndex < PROFILES.length - 1) {
       setCurrentIndex(prev => prev + 1);
-      setImageError(false);
+      setCurrentImageIndex(0);
+      setExpandedView(false);
     }
   };
 
   const handleDislike = () => {
     if (currentIndex < PROFILES.length - 1) {
       setCurrentIndex(prev => prev + 1);
-      setImageError(false);
+      setCurrentImageIndex(0);
+      setExpandedView(false);
     }
   };
 
   const handleSuperLike = () => {
     if (currentIndex < PROFILES.length - 1) {
       setCurrentIndex(prev => prev + 1);
-      setImageError(false);
+      setCurrentImageIndex(0);
+      setExpandedView(false);
     }
   };
 
-  const handleImageError = () => {
-    setImageError(true);
-  };
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    { useNativeDriver: true }
+  );
+
+  const imageScale = scrollY.interpolate({
+    inputRange: [-100, 0],
+    outputRange: [1.2, 1],
+    extrapolate: 'clamp',
+  });
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 50, 100],
+    outputRange: [1, 0.5, 0],
+    extrapolate: 'clamp',
+  });
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <ScrollView style={styles.scrollView}>
-        <NeonGradient style={styles.cardContainer}>
-          <Image 
-            source={{ 
-              uri: imageError 
-                ? 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
-                : currentProfile.image 
+      <Animated.ScrollView
+        style={styles.scrollView}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View
+          style={[
+            styles.cardContainer,
+            { transform: [{ scale: imageScale }] }
+          ]}
+        >
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(e) => {
+              const newIndex = Math.round(e.nativeEvent.contentOffset.x / width);
+              setCurrentImageIndex(newIndex);
             }}
-            style={styles.profileImage}
-            onError={handleImageError}
-          />
-          
-          <View style={styles.profileInfo}>
+          >
+            {currentProfile.images.map((image, index) => (
+              <Image
+                key={index}
+                source={{ uri: image }}
+                style={styles.profileImage}
+              />
+            ))}
+          </ScrollView>
+
+          <View style={styles.imagePagination}>
+            {currentProfile.images.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.paginationDot,
+                  currentImageIndex === index && styles.paginationDotActive
+                ]}
+              />
+            ))}
+          </View>
+
+          <Animated.View
+            style={[
+              styles.profileInfo,
+              { opacity: headerOpacity }
+            ]}
+          >
             <NeonText
               text={`${currentProfile.name}, ${currentProfile.age}`}
               color={theme.neonPink}
@@ -89,10 +150,17 @@ export default function DiscoverScreen() {
               style={styles.name}
             />
             
-            <Text style={styles.occupation}>{currentProfile.occupation}</Text>
-            <Text style={styles.location}>{currentProfile.location}</Text>
-          </View>
-        </NeonGradient>
+            <View style={styles.locationContainer}>
+              <MapPin size={16} color={theme.textSecondary} />
+              <Text style={styles.location}>{currentProfile.location}</Text>
+            </View>
+
+            <View style={styles.occupationContainer}>
+              <Briefcase size={16} color={theme.textSecondary} />
+              <Text style={styles.occupation}>{currentProfile.occupation}</Text>
+            </View>
+          </Animated.View>
+        </Animated.View>
 
         <Card style={styles.bioCard}>
           <Text style={styles.bioTitle}>About</Text>
@@ -113,7 +181,9 @@ export default function DiscoverScreen() {
             ))}
           </View>
         </Card>
-      </ScrollView>
+
+        <View style={styles.spacer} />
+      </Animated.ScrollView>
 
       <View style={styles.actions}>
         <TouchableOpacity 
@@ -154,11 +224,32 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 20,
     overflow: 'hidden',
+    backgroundColor: theme.surface,
   },
   profileImage: {
-    width: '100%',
+    width: width - 40,
     height: '100%',
     resizeMode: 'cover',
+  },
+  imagePagination: {
+    position: 'absolute',
+    top: 20,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: theme.textSecondary,
+    opacity: 0.5,
+  },
+  paginationDotActive: {
+    backgroundColor: theme.neonPink,
+    opacity: 1,
   },
   profileInfo: {
     position: 'absolute',
@@ -172,17 +263,28 @@ const styles = StyleSheet.create({
   name: {
     marginBottom: 8,
   },
-  occupation: {
-    fontSize: 16,
-    color: theme.textPrimary,
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 4,
   },
   location: {
+    marginLeft: 6,
+    fontSize: 14,
+    color: theme.textSecondary,
+  },
+  occupationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  occupation: {
+    marginLeft: 6,
     fontSize: 14,
     color: theme.textSecondary,
   },
   bioCard: {
     marginHorizontal: 20,
+    marginBottom: 16,
   },
   bioTitle: {
     fontSize: 18,
@@ -218,6 +320,9 @@ const styles = StyleSheet.create({
   interestText: {
     fontSize: 14,
     color: theme.textPrimary,
+  },
+  spacer: {
+    height: 100,
   },
   actions: {
     position: 'absolute',

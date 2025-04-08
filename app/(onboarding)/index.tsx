@@ -7,8 +7,13 @@ import Animated, {
   useAnimatedStyle,
   interpolate,
   withSpring,
+  withSequence,
+  withTiming,
   runOnJS
 } from 'react-native-reanimated';
+import { theme } from '../_layout';
+import NeonText from '../../components/NeonText';
+import NeonGradient from '../../components/NeonGradient';
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,7 +22,7 @@ const slides = [
     id: 1,
     title: 'Algorithm',
     description: 'Users going through a vetting process to ensure you never match with bots.',
-    image: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=2550&auto=format&fit=crop'
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=2574&auto=format&fit=crop'
   },
   {
     id: 2,
@@ -38,6 +43,7 @@ export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const slidesRef = useRef<Animated.ScrollView>(null);
   const autoScrollTimer = useRef<NodeJS.Timeout | null>(null);
+  const buttonScale = useSharedValue(1);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -55,15 +61,28 @@ export default function OnboardingScreen() {
   };
 
   useEffect(() => {
-    // Start auto-scrolling with 1-second interval
     autoScrollTimer.current = setInterval(scrollToNextSlide, 1000);
-
     return () => {
       if (autoScrollTimer.current) {
         clearInterval(autoScrollTimer.current);
       }
     };
   }, [currentIndex]);
+
+  const handlePressIn = () => {
+    buttonScale.value = withSpring(0.95);
+  };
+
+  const handlePressOut = () => {
+    buttonScale.value = withSequence(
+      withSpring(1.05),
+      withSpring(1)
+    );
+  };
+
+  const buttonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScale.value }]
+  }));
 
   const Dots = () => {
     return (
@@ -100,7 +119,7 @@ export default function OnboardingScreen() {
               style={[
                 styles.dot,
                 dotStyle,
-                { backgroundColor: index === currentIndex ? '#FF4B6A' : '#FFD1D9' }
+                { backgroundColor: index === currentIndex ? theme.neonPink : theme.textMuted }
               ]} 
             />
           );
@@ -111,58 +130,79 @@ export default function OnboardingScreen() {
 
   return (
     <View style={styles.container}>
-      <Animated.ScrollView
-        ref={slidesRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        onTouchStart={() => {
-          if (autoScrollTimer.current) {
-            clearInterval(autoScrollTimer.current);
-          }
-        }}
-        onTouchEnd={() => {
-          autoScrollTimer.current = setInterval(scrollToNextSlide, 1000);
-        }}
-        style={styles.scrollView}
-      >
-        {slides.map((slide, index) => (
-          <View key={slide.id} style={styles.slide}>
-            <View style={styles.cardContainer}>
-              <Image
-                source={{ uri: slide.image }}
-                style={styles.image}
-                resizeMode="cover"
-              />
+      <View style={styles.content}>
+        <Animated.ScrollView
+          ref={slidesRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          onTouchStart={() => {
+            if (autoScrollTimer.current) {
+              clearInterval(autoScrollTimer.current);
+            }
+          }}
+          onTouchEnd={() => {
+            autoScrollTimer.current = setInterval(scrollToNextSlide, 1000);
+          }}
+          style={styles.scrollView}
+        >
+          {slides.map((slide, index) => (
+            <View key={slide.id} style={styles.slide}>
+              <NeonGradient style={styles.cardContainer}>
+                <Image
+                  source={{ uri: slide.image }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              </NeonGradient>
+              <View style={styles.contentContainer}>
+                <NeonText 
+                  text={slide.title}
+                  color={theme.neonPink}
+                  size={32}
+                  style={styles.title}
+                />
+                <Text style={styles.description}>{slide.description}</Text>
+              </View>
             </View>
-            <View style={styles.contentContainer}>
-              <Text style={styles.title}>{slide.title}</Text>
-              <Text style={styles.description}>{slide.description}</Text>
-            </View>
-          </View>
-        ))}
-      </Animated.ScrollView>
+          ))}
+        </Animated.ScrollView>
+      </View>
 
       <View style={styles.bottomContainer}>
         <Dots />
         
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/phone')}
-        >
-          <Text style={styles.buttonText}>Create an account</Text>
-        </TouchableOpacity>
+        <Animated.View style={[styles.buttonContainer, buttonStyle]}>
+          <TouchableOpacity
+            style={styles.createAccountButton}
+            onPress={() => router.push('/phone')}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+          >
+            <NeonGradient 
+              style={styles.buttonGradient}
+              colors={[theme.neonPink, theme.neonPurple]}
+            >
+              <Text style={styles.buttonText}>Create an account</Text>
+            </NeonGradient>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => router.push('/signin')}
-          style={styles.signInButton}
-        >
-          <Text style={styles.signInText}>
-            Already have an account? <Text style={styles.signInLink}>Sign In</Text>
-          </Text>
-        </TouchableOpacity>
+          <View style={styles.signInContainer}>
+            <Text style={styles.signInText}>Already have an account?</Text>
+            <TouchableOpacity
+              onPress={() => router.push('/signin')}
+            >
+              <NeonText 
+                text="Sign In"
+                color={theme.neonBlue}
+                size={16}
+                style={styles.signInLink}
+              />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
       </View>
     </View>
   );
@@ -171,7 +211,10 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.background,
+  },
+  content: {
+    flex: 1,
   },
   scrollView: {
     flex: 1,
@@ -184,22 +227,15 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     width: width - 80,
-    height: height * 0.5,
+    height: height * 0.45,
     borderRadius: 24,
-    overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    padding: 2,
+    backgroundColor: theme.surface,
   },
   image: {
     width: '100%',
     height: '100%',
+    borderRadius: 22,
   },
   contentContainer: {
     alignItems: 'center',
@@ -207,21 +243,19 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '600',
-    color: '#FF4B6A',
     marginBottom: 16,
     textAlign: 'center',
   },
   description: {
     fontSize: 16,
-    color: '#666',
+    color: theme.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
   },
   bottomContainer: {
     paddingHorizontal: 20,
     paddingBottom: 40,
+    backgroundColor: theme.background,
   },
   dotContainer: {
     flexDirection: 'row',
@@ -234,27 +268,35 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginHorizontal: 4,
   },
-  button: {
-    backgroundColor: '#FF4B6A',
-    padding: 16,
-    borderRadius: 30,
+  buttonContainer: {
+    gap: 20,
+  },
+  createAccountButton: {
+    height: 56,
+    borderRadius: 28,
+    overflow: 'hidden',
+  },
+  buttonGradient: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
   },
   buttonText: {
-    color: '#fff',
+    color: theme.textPrimary,
     fontSize: 18,
     fontWeight: '600',
   },
-  signInButton: {
+  signInContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: 8,
   },
   signInText: {
     fontSize: 16,
-    color: '#666',
+    color: theme.textSecondary,
   },
   signInLink: {
-    color: '#FF4B6A',
-    fontWeight: '600',
+    marginBottom: 0,
   },
 });

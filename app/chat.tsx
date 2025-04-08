@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Keyboard, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Keyboard, Dimensions, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { ArrowLeft, MoveVertical as MoreVertical, Mic, Send, Camera, Image as ImageIcon, Phone, Video, Paperclip } from 'lucide-react-native';
+import { ArrowLeft, MoveVertical as MoreVertical, Mic, Send, Camera, Image as ImageIcon, Phone, Video, Paperclip, Flag, Ban } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from './_layout';
 import NeonText from '../components/NeonText';
@@ -51,19 +51,20 @@ export default function ChatScreen() {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState(MESSAGES);
   const [showAttachments, setShowAttachments] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const translateY = useSharedValue(1000);
   const inputHeight = useSharedValue(56);
   const attachmentsHeight = useSharedValue(0);
+  const moreOptionsScale = useSharedValue(0);
   const [isSending, setIsSending] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
-    // Initialize animation values
     translateY.value = 1000;
     attachmentsHeight.value = 0;
+    moreOptionsScale.value = 0;
     
-    // Start the animation after a frame
     requestAnimationFrame(() => {
       translateY.value = withSpring(0, {
         damping: 15,
@@ -86,6 +87,11 @@ export default function ChatScreen() {
     )
   }));
 
+  const moreOptionsAnimation = useAnimatedStyle(() => ({
+    transform: [{ scale: moreOptionsScale.value }],
+    opacity: moreOptionsScale.value
+  }));
+
   const toggleAttachments = () => {
     const newHeight = showAttachments ? 0 : 150;
     attachmentsHeight.value = withSpring(newHeight, {
@@ -93,6 +99,38 @@ export default function ChatScreen() {
       stiffness: 90
     });
     setShowAttachments(!showAttachments);
+  };
+
+  const toggleMoreOptions = () => {
+    moreOptionsScale.value = withSpring(showMoreOptions ? 0 : 1, {
+      damping: 15,
+      stiffness: 90
+    });
+    setShowMoreOptions(!showMoreOptions);
+  };
+
+  const handleReport = () => {
+    Alert.alert(
+      "Report User",
+      "Are you sure you want to report this user? They will be blocked for 7 days.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Report & Block",
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              "User Reported",
+              "This user has been reported and blocked for 7 days.",
+              [{ text: "OK", onPress: () => router.back() }]
+            );
+          }
+        }
+      ]
+    );
   };
 
   const sendMessage = () => {
@@ -110,24 +148,20 @@ export default function ChatScreen() {
       sender: 'me'
     };
 
-    // Simulate network delay
     setTimeout(() => {
       setChatMessages(prev => [...prev, newMessage]);
       setMessage('');
       setIsSending(false);
-      // Scroll to bottom after new message
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 500);
   };
 
   const startRecording = () => {
     setIsRecording(true);
-    // Implement audio recording logic here
   };
 
   const stopRecording = () => {
     setIsRecording(false);
-    // Implement stop recording and send audio logic here
   };
 
   const handleCall = (type: 'audio' | 'video') => {
@@ -184,10 +218,17 @@ export default function ChatScreen() {
           >
             <Video size={20} color={theme.textPrimary} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={toggleMoreOptions}>
             <MoreVertical size={24} color={theme.textPrimary} />
           </TouchableOpacity>
         </View>
+
+        <Animated.View style={[styles.moreOptionsMenu, moreOptionsAnimation]}>
+          <TouchableOpacity style={styles.moreOption} onPress={handleReport}>
+            <Flag size={20} color={theme.error} />
+            <Text style={[styles.moreOptionText, { color: theme.error }]}>Report & Block</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
 
       <ScrollView 
@@ -354,6 +395,31 @@ const styles = StyleSheet.create({
   onlineStatus: {
     fontSize: 12,
     color: theme.neonPink,
+  },
+  moreOptionsMenu: {
+    position: 'absolute',
+    top: 80,
+    right: 20,
+    backgroundColor: theme.surface,
+    borderRadius: 12,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: theme.border,
+    shadowColor: theme.neonPink,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  moreOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    gap: 12,
+  },
+  moreOptionText: {
+    fontSize: 16,
+    fontWeight: '500',
   },
   messagesContainer: {
     flex: 1,

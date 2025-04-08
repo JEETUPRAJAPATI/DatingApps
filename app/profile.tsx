@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Platform, Pressable, Modal } from 'react-native';
-import { router } from 'expo-router';
+import { router, useSegments } from 'expo-router';
 import { ArrowLeft, Camera, Calendar, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from './_layout';
@@ -11,6 +11,7 @@ import NeonGradient from '../components/NeonGradient';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const segments = useSegments();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [birthDate, setBirthDate] = useState<Date | null>(null);
@@ -22,6 +23,16 @@ export default function ProfileScreen() {
   const handleContinue = () => {
     if (firstName && lastName && birthDate) {
       router.push('/gender');
+    }
+  };
+
+  const handleBack = () => {
+    // Check if we're in a navigation stack
+    if (segments.length > 1) {
+      router.back();
+    } else {
+      // If we're at the root, navigate to the home tab
+      router.replace('/(tabs)');
     }
   };
 
@@ -73,7 +84,7 @@ export default function ProfileScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={handleBack}>
           <ArrowLeft size={24} color={theme.textPrimary} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/gender')}>
